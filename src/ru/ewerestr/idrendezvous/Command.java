@@ -3,9 +3,9 @@ package ru.ewerestr.idrendezvous;
 public class Command
 {
     private String _command;
-    private String _arg;
+    private int _arg;
 
-    public Command(String command, String arg)
+    public Command(String command, int arg)
     {
         _command = command;
         _arg = arg;
@@ -16,7 +16,7 @@ public class Command
         return _command;
     }
 
-    public String getArgs()
+    public int getArgs()
     {
         return _arg;
     }

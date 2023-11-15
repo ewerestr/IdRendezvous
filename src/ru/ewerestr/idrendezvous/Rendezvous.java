@@ -32,15 +32,32 @@ public class Rendezvous
         System.out.println("Rendezvous has been started");
     }
 
+    public void stop()
+    {
+        try
+        {
+            if (_counterThread.isAlive()) _counterThread.stop();
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+    }
+
     public int leaseId()
     {
         if (_freeid.size() > 0)
         {
             int id = _freeid.get(0);
             _freeid.remove(0);
+            _leaseTimeMap.put(id, ((int)(System.currentTimeMillis()/1000))+_leaseTime);
             return id;
         }
-        if (_lastid < _limit) return _lastid++;
+        if (_lastid < _limit)
+        {
+            _leaseTimeMap.put(_lastid, ((int)(System.currentTimeMillis()/1000))+_leaseTime);
+            return _lastid++;
+        }
         else return -1;
     }
 
@@ -48,7 +65,7 @@ public class Rendezvous
     {
         if (_leaseTimeMap.containsKey(id))
         {
-            _leaseTimeMap.put(id, (int)(System.currentTimeMillis()/1000)+_leaseTime);
+            _leaseTimeMap.put(id, ((int)(System.currentTimeMillis()/1000))+_leaseTime);
             return true;
         }
         return false;
@@ -58,6 +75,7 @@ public class Rendezvous
     {
         if (_lastid <= id || _freeid.contains(id)) return false;
         _freeid.add(id);
+        _leaseTimeMap.remove(id);
         return true;
     }
 
@@ -79,5 +97,22 @@ public class Rendezvous
         if (_lastid < _limit) free += _lastid == _limit-1 ? _lastid : _lastid + "-" + (_limit-1);
         else free = free.substring(0, free.length()-2);
         return free;
+    }
+
+    public String getLeasing(int id)
+    {
+        if (_leaseTimeMap.containsKey(id)) return _leaseTimeMap.get(id).toString();
+        return ("id:" + id + " isn't leased");
+    }
+
+    public String getLeasingAll()
+    {
+        if (_leaseTimeMap.size() > 0)
+        {
+            String leases = "Current time: " + (int)(System.currentTimeMillis()/1000) + "\n";
+            for (int k : _leaseTimeMap.keySet()) leases += ("id:" + k + " leased until " + _leaseTimeMap.get(k) + "\n");
+            return leases;
+        }
+        return "There's no leased ids now";
     }
 }

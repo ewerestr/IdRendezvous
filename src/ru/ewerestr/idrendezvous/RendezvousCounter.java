@@ -1,5 +1,6 @@
 package ru.ewerestr.idrendezvous;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class RendezvousCounter implements Runnable
@@ -31,8 +32,9 @@ public class RendezvousCounter implements Runnable
         Map<Integer, Integer> map;
         while (true)
         {
+            System.out.println("Peek!");
             currentTime = (int)(System.currentTimeMillis()/1000);
-            map = _instance.getLeaseTimeMap();
+            map = new HashMap<Integer, Integer>(_instance.getLeaseTimeMap());
             for (int id : map.keySet()) if (currentTime >= map.get(id)) _instance.releaseId(id);
             Thread.sleep(_peekInterval * 1000L);
         }
